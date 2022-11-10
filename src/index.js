@@ -7,14 +7,23 @@ const DOMFeels = document.querySelector("#feels");
 const DOMMin = document.querySelector("#min");
 const DOMMax = document.querySelector("#max");
 const searchBtn = document.querySelector("#search");
+const errormsg = document.querySelector("#errormsg");
 
+searchBtn.style.backgroundImage = "url('magnify.png')";
 searchBtn.addEventListener("click", () => {
-    const typedCity = document.querySelector("#userCity").value;
-    const countryCode = document.querySelector("#country").value;
-    getWeather(typedCity, countryCode);
+    const typedCity = document.querySelector("#userCity");
+    getWeather(typedCity.value);
+    typedCity.value = ""; //resets text in searchbar
 });
 
-getWeather("London", "UK");
+searchBtn.addEventListener("keypress", function (e) {
+    if (13 == e.key) {
+        const typedCity = document.querySelector("#userCity").value;
+        getWeather(typedCity);
+    }
+});
+
+getWeather("London");
 
 
 class Weather {
@@ -75,10 +84,11 @@ function kelvinToCelsius(temp) {
     return Math.round(temp - 273.15);
 }
 
-async function getWeather(cityName, countryCode) {
+async function getWeather(cityName) {
     try {
+        errormsg.textContent="";
         const today = new Date();
-        const result = "https://api.openweathermap.org/data/2.5/weather?q=" + cityName + "," + countryCode + "&APPID=71343ce8826309a49dd248efb9a6286d";
+        const result = "https://api.openweathermap.org/data/2.5/weather?q=" + cityName + "&APPID=71343ce8826309a49dd248efb9a6286d";
         const response = await fetch(result, { mode: 'cors' });
         const weatherData = await response.json();
         const city = weatherData.name;
@@ -94,7 +104,8 @@ async function getWeather(cityName, countryCode) {
 
 
     } catch (error) {
-        alert("Can't find weather data");
+        errormsg.textContent ="There was an error in the data search. Try again!";
+        errormsg.style.color="red";
     }
 
 }
@@ -109,5 +120,4 @@ function displayWeather(todayWeather) {
     DOMMin.textContent = todayWeather.getMin() + " °C";
     DOMMax.textContent = todayWeather.getMax() + " °C";
 }
-
 
